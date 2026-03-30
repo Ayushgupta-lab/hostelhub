@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HostelHub — Smart Hostel Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"] {
+  --bg:#0a0a0f; --bg2:#111118; --bg3:#1a1a25; --card:#16161f; --card2:#1e1e2e;
+  --border:rgba(255,255,255,0.08); --text:#f0f0ff; --text2:#9090b0;
+  --accent:#7c6aff; --accent2:#ff6a9b; --accent3:#6affb8; --accent4:#ffb86a;
+  --glow:rgba(124,106,255,0.3); --glow2:rgba(255,106,155,0.2);
+  --shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+:root[data-theme="light"] {
+  --bg:#f4f4ff; --bg2:#eaeaf8; --bg3:#ddddf0; --card:#ffffff; --card2:#f0f0ff;
+  --border:rgba(0,0,0,0.08); --text:#1a1a2e; --text2:#555577;
+  --accent:#6457e8; --accent2:#e8578a; --accent3:#2ec98a; --accent4:#e8a857;
+  --glow:rgba(100,87,232,0.15); --glow2:rgba(232,87,138,0.1);
+  --shadow:0 20px 60px rgba(0,0,0,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s;}
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;animation:orb-drift 20s infinite alternate ease-in-out;}
+.orb1{width:500px;height:500px;background:var(--accent);top:-100px;left:-100px;}
+.orb2{width:400px;height:400px;background:var(--accent2);bottom:-100px;right:-100px;animation-delay:-7s;}
+.orb3{width:300px;height:300px;background:var(--accent3);top:50%;left:50%;animation-delay:-13s;}
+@keyframes orb-drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.1)}100%{transform:translate(-40px,60px) scale(.95)}}
+.container{max-width:1100px;margin:0 auto;padding:0 20px;position:relative;z-index:1;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 24px;backdrop-filter:blur(20px);background:rgba(10,10,15,.7);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+[data-theme="light"] nav{background:rgba(244,244,255,.8);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-tabs{display:flex;gap:4px;background:var(--card);border-radius:50px;padding:4px;border:1px solid var(--border);flex-wrap:wrap;}
+.nav-tab{padding:7px 14px;border-radius:50px;cursor:pointer;font-size:.8rem;font-weight:500;color:var(--text2);border:none;background:transparent;transition:all .3s;}
+.nav-tab.active,.nav-tab:hover{background:var(--accent);color:#fff;box-shadow:0 0 16px var(--glow);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.theme-toggle{width:40px;height:22px;border-radius:11px;background:var(--card);border:1px solid var(--border);cursor:pointer;position:relative;transition:all .3s;}
+.theme-toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);top:2px;left:2px;transition:transform .3s;}
+[data-theme="light"] .theme-toggle::after{transform:translateX(18px);background:var(--accent4);}
+.credits-badge{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50px;padding:5px 12px;font-size:.82rem;font-weight:600;cursor:default;}
+.page{display:none;padding-top:80px;min-height:100vh;}
+.page.active{display:block;}
+.fade-up{opacity:0;transform:translateY(20px);animation:fade-up .5s ease forwards;}
+@keyframes fade-up{to{opacity:1;transform:translateY(0)}}
+
+/* ── AUTH OVERLAY ── */
+#authOverlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;}
+.auth-box{background:var(--card2);border:1px solid var(--border);border-radius:24px;padding:36px;width:90%;max-width:460px;animation:fade-up .4s ease;}
+.auth-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.auth-sub{color:var(--text2);font-size:.85rem;margin-bottom:24px;line-height:1.6;}
+.auth-tabs{display:flex;gap:8px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-weight:600;font-size:.9rem;transition:all .3s;}
+.auth-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:.8rem;color:var(--text2);font-weight:600;margin-bottom:5px;display:block;}
+.form-input,.form-select{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text);font-size:.9rem;transition:border-color .3s;outline:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+.btn-primary{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700;font-size:.95rem;border:none;cursor:pointer;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--glow);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.auth-err{background:rgba(255,106,155,.1);border:1px solid rgba(255,106,155,.4);border-radius:10px;padding:10px 14px;font-size:.82rem;color:var(--accent2);margin-bottom:14px;display:none;}
+.auth-ok{background:rgba(106,255,184,.1);border:1px solid rgba(106,255,184,.4);border-radius:10px;padding:10px 14px;font-size:.82rem;color:var(--accent3);margin-bottom:14px;display:none;}
+
+/* ── VERIFIED BADGE ── */
+.verified-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(106,255,184,.12);border:1px solid rgba(106,255,184,.35);border-radius:50px;padding:4px 10px;font-size:.72rem;font-weight:700;color:var(--accent3);}
+.unverified-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,184,106,.12);border:1px solid rgba(255,184,106,.35);border-radius:50px;padding:4px 10px;font-size:.72rem;font-weight:700;color:var(--accent4);}
+
+/* ── GENERAL CARDS ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:8px;}
+.section-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;}
+.section-title span{color:var(--accent);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;}
+.btn-sm{padding:8px 18px;border-radius:50px;font-size:.82rem;font-weight:600;border:none;cursor:pointer;transition:all .3s;}
+.btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--glow);}
+.btn-outline{background:transparent;color:var(--text2);border:1.5px solid var(--border);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── HERO ── */
+.hero{padding:60px 0 40px;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:6px 16px;font-size:.78rem;color:var(--accent3);margin-bottom:20px;animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.8rem);font-weight:800;line-height:1.1;margin-bottom:16px;}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200%;animation:grad 4s ease infinite;}
+@keyframes grad{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+.hero p{color:var(--text2);font-size:1rem;max-width:520px;margin:0 auto 28px;line-height:1.7;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0;}
+@media(max-width:600px){.stats-strip{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;text-align:center;transition:transform .3s;}
+.stat-card:hover{transform:translateY(-3px);}
+.stat-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{color:var(--text2);font-size:.78rem;margin-top:4px;}
+
+/* ── FOOD VOTE ── */
+.meal-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+@media(max-width:540px){.meal-slots{grid-template-columns:repeat(2,1fr);}}
+.meal-slot-card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .3s;position:relative;}
+.meal-slot-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.meal-slot-card.active{border-color:var(--accent);background:var(--card2);box-shadow:0 0 0 3px rgba(124,106,255,.2);}
+.meal-slot-card.active::after{content:'✓';position:absolute;top:6px;right:8px;color:var(--accent);font-weight:800;font-size:.85rem;}
+.meal-slot-emoji{font-size:1.6rem;margin-bottom:5px;}
+.meal-slot-name{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:2px;}
+.meal-slot-time{color:var(--text2);font-size:.68rem;}
+.meal-slot-votes{margin-top:6px;font-size:.68rem;color:var(--accent4);font-weight:600;background:var(--bg3);border-radius:50px;padding:2px 7px;display:inline-block;}
+.vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.food-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.food-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px var(--glow);}
+.food-card.selected{border-color:var(--accent3);background:var(--card2);box-shadow:0 0 0 3px rgba(106,255,184,.2);}
+.food-card.selected::after{content:'✓';position:absolute;top:10px;right:12px;color:var(--accent3);font-weight:700;}
+.food-card.voted{opacity:.6;cursor:not-allowed;}
+.free-badge{position:absolute;top:8px;right:8px;background:var(--accent3);color:#000;font-size:.62rem;font-weight:800;padding:2px 8px;border-radius:50px;}
+.food-emoji{font-size:2.2rem;margin-bottom:8px;display:block;}
+.food-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:5px;}
+.food-desc{color:var(--text2);font-size:.75rem;line-height:1.5;margin-bottom:10px;}
+.food-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.food-tag{background:var(--bg3);border-radius:50px;padding:2px 9px;font-size:.68rem;font-weight:500;}
+.food-tag.cr{color:var(--accent4);}
+.food-tag.nt{color:var(--accent3);}
+.vote-bar-wrap{margin-top:10px;}
+.vote-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:3px;}
+.vote-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s;}
+.vote-bar-label{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text2);}
+.vote-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:600;border:none;cursor:pointer;font-size:.9rem;transition:all .3s;margin-top:8px;}
+.vote-btn:hover{opacity:.9;transform:translateY(-2px);}
+.vote-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+/* ── DEADLINE BANNER ── */
+.deadline-banner{border-radius:12px;padding:11px 16px;margin-bottom:14px;border:1.5px solid;font-size:.82rem;font-weight:500;display:none;}
+
+/* ── RATINGS PAGE ── */
+.rating-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:24px;}
+.rating-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;transition:transform .3s;}
+.rating-card:hover{transform:translateY(-3px);}
+.stars{display:flex;gap:5px;margin:10px 0;}
+.star{font-size:1.4rem;cursor:pointer;transition:transform .2s;filter:grayscale(1) opacity(.4);}
+.star.active{filter:none;transform:scale(1.1);}
+.star:hover{transform:scale(1.25);filter:none;}
+.overall-rating{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:22px;padding:28px;text-align:center;color:#fff;margin-bottom:22px;}
+.overall-num{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;}
+
+/* ── CREDITS PAGE ── */
+.credit-wallet{background:linear-gradient(135deg,#1a1035,#2d1060);border-radius:22px;padding:28px;margin-bottom:20px;border:1px solid rgba(124,106,255,.3);position:relative;overflow:hidden;}
+[data-theme="light"] .credit-wallet{background:linear-gradient(135deg,#e8e0ff,#f0d8ff);}
+.wallet-amount{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:#fff;line-height:1;}
+[data-theme="light"] .wallet-amount{color:#3a1a6e;}
+.wallet-sub{color:rgba(255,255,255,.5);font-size:.82rem;margin-top:6px;}
+[data-theme="light"] .wallet-sub{color:rgba(80,60,140,.6);}
+.credit-progress{height:8px;background:rgba(255,255,255,.15);border-radius:4px;margin-top:14px;overflow:hidden;}
+.credit-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent3),var(--accent));transition:width .8s;}
+.ch-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.ch-item:last-child{border-bottom:none;}
+.ch-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ch-dot.earn{background:var(--accent3);}
+.ch-dot.spend{background:var(--accent2);}
+.ch-dot.reset{background:var(--accent);}
+.ch-dot.daily_deduct{background:var(--accent4);}
+.ch-info{flex:1;}
+.ch-title{font-size:.82rem;font-weight:500;}
+.ch-date{font-size:.7rem;color:var(--text2);margin-top:2px;}
+.ch-amount{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;}
+.ch-amount.earn{color:var(--accent3);}
+.ch-amount.spend{color:var(--accent2);}
+.ch-amount.reset{color:var(--accent);}
+.ch-amount.daily_deduct{color:var(--accent4);}
+
+/* ── EXCESS CREDITS ── */
+.excess-card{background:linear-gradient(135deg,rgba(255,184,106,.08),rgba(124,106,255,.08));border:1.5px solid rgba(255,184,106,.3);border-radius:18px;padding:20px;margin-bottom:18px;}
+.excess-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--accent4);}
+
+/* ── SWEET PAGE ── */
+.sweet-fund-banner{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:22px;}
+.sweet-claim-btn{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--accent3),var(--accent));color:#000;font-weight:800;border:none;cursor:pointer;font-size:.95rem;transition:all .3s;margin-top:12px;}
+.sweet-claim-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(106,255,184,.3);}
+.sweet-claim-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.lb-row:last-child{border-bottom:none;}
+.lb-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0;}
+.lb-rank.r1{background:linear-gradient(135deg,#ffd700,#ffa500);color:#000;}
+.lb-rank.r2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#000;}
+.lb-rank.r3{background:linear-gradient(135deg,#cd7f32,#a0522d);color:#fff;}
+.lb-rank.rn{background:var(--bg3);color:var(--text2);}
+.lb-bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.lb-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent4),var(--accent2));border-radius:3px;transition:width .8s;}
+.lb-you{background:rgba(106,255,184,.06);border-radius:10px;padding:4px 8px;}
+
+/* ── ADMIN PAGE ── */
+.student-row{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;flex-wrap:wrap;}
+.student-info{flex:1;min-width:160px;}
+.student-name{font-weight:700;font-size:.92rem;}
+.student-meta{font-size:.74rem;color:var(--text2);margin-top:3px;line-height:1.5;}
+.verify-btn{padding:7px 16px;border-radius:50px;font-size:.78rem;font-weight:700;border:none;cursor:pointer;transition:all .3s;}
+.verify-btn.approve{background:var(--accent3);color:#000;}
+.verify-btn.reject{background:rgba(255,106,155,.2);color:var(--accent2);border:1px solid var(--accent2);}
+.verify-btn:hover{transform:scale(1.05);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:.88rem;box-shadow:var(--shadow);transform:translateY(80px);opacity:0;transition:all .4s;pointer-events:none;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── GIFT MODAL ── */
+.gift-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
+.gift-overlay.show{display:flex;}
+.gift-box{background:var(--card2);border:1px solid var(--border);border-radius:24px;padding:32px;max-width:380px;width:90%;text-align:center;animation:fade-up .3s ease;}
+.gift-emoji{font-size:3.5rem;margin-bottom:12px;}
+.gift-box h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:8px;}
+.gift-box p{color:var(--text2);font-size:.88rem;line-height:1.7;margin-bottom:20px;}
+.spacer{height:60px;}
+
+/* ── AI PANEL ── */
+.ai-panel{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:22px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden;}
+.ai-panel::before{content:'';position:absolute;top:-50%;right:-50%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,var(--accent),transparent 70%);opacity:.05;}
+.ai-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:10px;}
+.ai-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px;}
+.ai-text{color:var(--text2);font-size:.85rem;line-height:1.7;}
+.ai-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.ai-chip{background:var(--bg3);border-radius:50px;padding:4px 12px;font-size:.74rem;border:1px solid var(--border);color:var(--accent);font-weight:500;}
+
+/* ── INDUCTION BANNER ── */
+.induction-banner{background:linear-gradient(135deg,rgba(124,106,255,.1),rgba(255,106,155,.1));border:1px solid rgba(124,106,255,.25);border-radius:18px;padding:20px;display:flex;gap:16px;align-items:flex-start;margin-bottom:22px;}
+.induction-icon{font-size:2rem;flex-shrink:0;}
+.induction-text h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:5px;}
+.induction-text p{color:var(--text2);font-size:.82rem;line-height:1.6;}
+
+/* ── FESTIVAL ── */
+.festival-panel{background:linear-gradient(135deg,#1a0a2e,#2e1060,#0a1a2e);border:1px solid rgba(255,184,106,.3);border-radius:22px;padding:24px;margin-bottom:22px;}
+[data-theme="light"] .festival-panel{background:linear-gradient(135deg,#fff8e8,#ffeedd,#e8f0ff);}
+.festival-days-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0;}
+@media(max-width:480px){.festival-days-grid{grid-template-columns:repeat(2,1fr);}}
+.festival-day-card{background:rgba(255,184,106,.08);border:1.5px solid rgba(255,184,106,.2);border-radius:12px;padding:10px 6px;text-align:center;transition:all .3s;}
+.festival-day-card.used{background:rgba(106,255,184,.1);border-color:rgba(106,255,184,.3);}
+.festival-day-card.today{background:rgba(255,184,106,.2);border-color:var(--accent4);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px rgba(255,184,106,.3)}50%{box-shadow:0 0 24px rgba(255,184,106,.5)}}
+
+/* ── FACILITY ── */
+.facility-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:24px;}
+.facility-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;transition:transform .3s;}
+.facility-card:hover{transform:translateY(-3px);}
+.fac-icon{font-size:2rem;margin-bottom:10px;}
+.fac-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.fac-status{display:flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;margin-bottom:8px;}
+.fac-dot{width:8px;height:8px;border-radius:50%;}
+.fac-status.ok .fac-dot,.fac-status.ok{color:var(--accent3);}
+.fac-status.ok .fac-dot{background:var(--accent3);}
+.fac-status.warn .fac-dot,.fac-status.warn{color:var(--accent4);}
+.fac-status.warn .fac-dot{background:var(--accent4);}
+.fac-status.bad .fac-dot,.fac-status.bad{color:var(--accent2);}
+.fac-status.bad .fac-dot{background:var(--accent2);}
+.fac-desc{color:var(--text2);font-size:.76rem;line-height:1.5;}
+
+/* ── FEEDBACK ── */
+.feedback-form{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:22px;}
+.form-textarea{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text);font-size:.88rem;min-height:100px;resize:vertical;outline:none;font-family:inherit;}
+.form-textarea:focus{border-color:var(--accent);}
+.sentiment-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.sentiment-chip{background:var(--bg3);border:1.5px solid var(--border);border-radius:50px;padding:5px 12px;font-size:.76rem;cursor:pointer;transition:all .3s;}
+.sentiment-chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<!-- ══ AUTH OVERLAY ══ -->
+<div id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-title">HostelHub ✦</div>
+    <div class="auth-sub" id="authSubText">Apne hostel ka smart system — login karo ya register karo</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔑 Login</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">📝 Register</button>
+    </div>
+    <div id="authErr" class="auth-err"></div>
+    <div id="authOk" class="auth-ok"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="apna@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()" id="loginBtn">🔑 Login Karo</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Poora Naam</label>
+          <input class="form-input" id="regName" placeholder="Rahul Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-input" id="regPhone" placeholder="9876543210">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="apna@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="regPassword" placeholder="Min 6 characters">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Institution Type</label>
+          <select class="form-select" id="regInstType">
+            <option value="college">College</option>
+            <option value="coaching">Coaching</option>
+            <option value="school">School</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Institution Name</label>
+          <input class="form-input" id="regInstName" placeholder="XYZ College">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Student ID / Roll No</label>
+          <input class="form-input" id="regStudentId" placeholder="CS2021001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Room Number</label>
+          <input class="form-input" id="regRoom" placeholder="B-204">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="doRegister()" id="registerBtn">📝 Register Karo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <div class="logo">HostelHub ✦</div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
+    <button class="nav-tab" onclick="showPage('food')">🍽 Food</button>
+    <button class="nav-tab" onclick="showPage('ratings')">⭐ Ratings</button>
+    <button class="nav-tab" onclick="showPage('credits')">💰 Credits</button>
+    <button class="nav-tab" onclick="showPage('facilities')">🏗 Facilities</button>
+    <button class="nav-tab" onclick="showPage('sweet')">🍬 Sweet</button>
+    <button class="nav-tab" onclick="showPage('feedback')">💬 Feedback</button>
+    <button class="nav-tab" id="adminTab" style="display:none" onclick="showPage('admin')">🛡 Admin</button>
+  </div>
+  <div class="nav-right">
+    <div class="theme-toggle" onclick="toggleTheme()"></div>
+    <div class="credits-badge">💎 <span id="navCredits">0</span></div>
+    <div id="navUser" style="font-size:.78rem;color:var(--text2);cursor:pointer" onclick="doLogout()">Logout</div>
+  </div>
+</nav>
+
+<!-- ══ HOME PAGE ══ -->
+<div class="page active" id="page-home">
+  <div class="container">
+    <div class="hero fade-up">
+      <div class="hero-badge">🤖 Verified Students Only — Smart Hostel</div>
+      <h1>Your Hostel,<br><span>Your Choice.</span></h1>
+      <p>Verified students vote karein meals ke liye, ratings dein, credits track karein — sab ek jagah.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" style="padding:12px 28px;border-radius:50px;font-size:.9rem;border:none;cursor:pointer" onclick="showPage('food')">🍽 Vote Today's Menu</button>
+        <button style="padding:12px 28px;border-radius:50px;font-size:.9rem;background:var(--card);color:var(--text);border:1px solid var(--border);cursor:pointer" onclick="showPage('ratings')">⭐ Rate Hostel</button>
+      </div>
+      <div id="verifyWarning" style="display:none;margin-top:16px;background:rgba(255,184,106,.1);border:1px solid rgba(255,184,106,.3);border-radius:12px;padding:12px 16px;font-size:.82rem;color:var(--accent4)">
+        ⚠️ Aapka account abhi <strong>verified nahi hai</strong>. Admin se verification ka wait karo — ratings aur voting tabhi milega.
+      </div>
+    </div>
+    <div class="stats-strip">
+      <div class="stat-card fade-up"><div class="stat-num" id="statVotes">0</div><div class="stat-label">Aaj ke Votes</div></div>
+      <div class="stat-card fade-up"><div class="stat-num" id="statRating">—</div><div class="stat-label">Overall Rating</div></div>
+      <div class="stat-card fade-up"><div class="stat-num" id="statCredits">0</div><div class="stat-label">Mere Credits</div></div>
+      <div class="stat-card fade-up"><div class="stat-num" id="statExcess">0</div><div class="stat-label">Excess Credits</div></div>
+    </div>
+    <div class="ai-panel fade-up">
+      <div class="ai-icon">🧠</div>
+      <div class="ai-title">AI Daily Insight</div>
+      <div class="ai-text" id="aiInsightText">Loading insights...</div>
+      <div class="ai-chips">
+        <span class="ai-chip" id="aiChip1">Loading...</span>
+        <span class="ai-chip" id="aiChip2">...</span>
+        <span class="ai-chip" id="aiChip3">...</span>
+      </div>
+    </div>
+    <div class="induction-banner fade-up">
+      <div class="induction-icon">🌙</div>
+      <div class="induction-text">
+        <h3>Induction Kitchen — Open Tonight (10 PM – 12 AM)</h3>
+        <p>Raat ko bhook lagi? Common kitchen mein induction available hai. Basic snacks available hain!</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ FOOD PAGE ══ -->
+<div class="page" id="page-food">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">🍽 Today's <span>Menu Vote</span></div>
+      <div id="foodSubtitle" style="color:var(--text2);font-size:.82rem">Nasta slot select hai</div>
+    </div>
+    <div id="unverifiedFoodMsg" style="display:none;background:rgba(255,106,155,.1);border:1.5px solid rgba(255,106,155,.3);border-radius:14px;padding:14px 18px;margin-bottom:18px;font-size:.85rem;color:var(--accent2)">
+      ⚠️ Voting sirf <strong>verified students</strong> ke liye hai. Admin se verification ka wait karo!
+    </div>
+    <div class="meal-slots fade-up">
+      <div class="meal-slot-card active" onclick="selectSlot(this,'breakfast')">
+        <div class="meal-slot-emoji">🌅</div>
+        <div class="meal-slot-name">Nasta</div>
+        <div class="meal-slot-time">7–9 AM</div>
+        <div class="meal-slot-votes" id="slotv-breakfast">— votes</div>
+      </div>
+      <div class="meal-slot-card" onclick="selectSlot(this,'lunch')">
+        <div class="meal-slot-emoji">☀️</div>
+        <div class="meal-slot-name">Lunch</div>
+        <div class="meal-slot-time">12–2 PM</div>
+        <div class="meal-slot-votes" id="slotv-lunch">— votes</div>
+      </div>
+      <div class="meal-slot-card" onclick="selectSlot(this,'snacks')">
+        <div class="meal-slot-emoji">🫖</div>
+        <div class="meal-slot-name">Snacks</div>
+        <div class="meal-slot-time">4–6 PM</div>
+        <div class="meal-slot-votes" id="slotv-snacks">— votes</div>
+      </div>
+      <div class="meal-slot-card" onclick="selectSlot(this,'dinner')">
+        <div class="meal-slot-emoji">🌙</div>
+        <div class="meal-slot-name">Dinner</div>
+        <div class="meal-slot-time">7–9 PM</div>
+        <div class="meal-slot-votes" id="slotv-dinner">— votes</div>
+      </div>
+    </div>
+    <div class="deadline-banner" id="deadlineBanner"></div>
+
+    <!-- Excess credits toggle -->
+    <div id="excessPanel" style="background:linear-gradient(135deg,rgba(255,184,106,.08),rgba(124,106,255,.08));border:1.5px solid rgba(255,184,106,.3);border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem">⚡ Excess Credits: <span id="excessBadge" style="color:var(--accent4)">4</span> remaining</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-top:3px">Premium item ke liye excess credits use karo — sirf extra amount katega, baki wapas!</div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem">
+        <input type="checkbox" id="useExcessToggle" style="width:16px;height:16px;accent-color:var(--accent4)">
+        Use Excess Credits
+      </label>
+    </div>
+
+    <div class="vote-grid" id="voteGrid"></div>
+    <button class="vote-btn" id="submitVoteBtn" onclick="submitVote()" style="max-width:280px;margin:0 auto;display:block">🗳 Submit My Vote</button>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ RATINGS PAGE ══ -->
+<div class="page" id="page-ratings">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">⭐ Hostel <span>Ratings</span></div>
+      <div style="color:var(--text2);font-size:.82rem">Sirf verified students rate kar sakte hain</div>
+    </div>
+    <div id="unverifiedRatingMsg" style="display:none;background:rgba(255,106,155,.1);border:1.5px solid rgba(255,106,155,.3);border-radius:14px;padding:14px 18px;margin-bottom:18px;font-size:.85rem;color:var(--accent2)">
+      ⚠️ Rating sirf <strong>verified students</strong> de sakte hain. Bahar wale ya unverified log rating nahi de sakte!
+    </div>
+    <div class="overall-rating fade-up">
+      <div style="font-size:.85rem;opacity:.8;margin-bottom:6px">THIS MONTH'S OVERALL SCORE</div>
+      <div class="overall-num" id="overallScore">—</div>
+      <div style="opacity:.8;font-size:.85rem;margin-top:6px" id="ratingCount">Loading ratings...</div>
+      <div style="font-size:.9rem;margin-top:8px">⚠️ Below 3.5 → Management ko auto-alert!</div>
+    </div>
+    <div class="rating-grid" id="ratingGrid"></div>
+    <button class="vote-btn" id="submitRatingBtn" onclick="submitRatings()" style="max-width:280px;margin:0 auto;display:block">📤 Submit Ratings</button>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ CREDITS PAGE ══ -->
+<div class="page" id="page-credits">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">💎 My <span>Credits</span></div>
+    </div>
+    <div class="credit-wallet fade-up">
+      <div style="color:rgba(255,255,255,.6);font-size:.82rem;margin-bottom:6px">Available Credits</div>
+      <div class="wallet-amount" id="walletAmount">0</div>
+      <div class="wallet-sub" id="walletSub">Loading...</div>
+      <div class="credit-progress"><div class="credit-progress-fill" id="creditFill" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-top:4px;opacity:.5">
+        <span>0</span><span id="walletSpent">0 spent</span><span id="walletTotal">0</span>
+      </div>
+    </div>
+
+    <div class="excess-card fade-up">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:8px">⚡ Excess Credits — Month Mein 4 Extra</div>
+      <div class="excess-num" id="excessAmount">4</div>
+      <div style="color:var(--text2);font-size:.78rem;margin-top:6px;line-height:1.6">
+        Ye 4 extra credits <strong>kisi bhi din use karo</strong> — premium item ke liye. Jo credits bachenge, basic cost se zyada katega toh utna hi katega, baki wapas! Reset: har mahine 1 tarikh ko.
+      </div>
+      <div style="margin-top:10px;font-size:.78rem;color:var(--text2)">Used this month: <strong style="color:var(--accent4)" id="excessUsedDisplay">0</strong> / 4</div>
+    </div>
+
+    <div style="background:rgba(124,106,255,.06);border:1px solid rgba(124,106,255,.2);border-radius:16px;padding:16px;margin-bottom:18px" class="fade-up" id="dailyDeductInfo">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;margin-bottom:6px">📅 Daily Deduction Rule</div>
+      <div style="color:var(--text2);font-size:.8rem;line-height:1.7">
+        Har din <strong style="color:var(--accent2)">6 credits automatically katte hain</strong> — chahe khana khao ya nahi.<br>
+        🌅 Nasta 1 + ☀️ Lunch 2 + 🫖 Snacks 1 + 🌙 Dinner 2 = <strong>6/din</strong>
+      </div>
+    </div>
+
+    <div class="section-header fade-up"><div class="section-title">🕒 Credit <span>History</span></div></div>
+    <div class="card fade-up" id="creditHistory"><div style="color:var(--text2);text-align:center;padding:20px">Loading...</div></div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ FACILITIES PAGE ══ -->
+<div class="page" id="page-facilities">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">🏗 Hostel <span>Facilities</span></div>
+    </div>
+    <div class="facility-grid" id="facilityGrid"></div>
+    <div class="feedback-form fade-up">
+      <div class="section-title" style="margin-bottom:18px">🔧 Maintenance <span>Request</span></div>
+      <div class="form-group">
+        <label class="form-label">Issue Type</label>
+        <select class="form-select" id="mainType">
+          <option>Plumbing / Water Issue</option><option>Electricity / Fan / Lights</option>
+          <option>Room Cleanliness</option><option>Hot/Cold Water Geyser</option>
+          <option>Internet / WiFi</option><option>Medical Emergency</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Room Number</label>
+        <input class="form-input" id="mainRoom" placeholder="e.g. B-204">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Problem describe karo</label>
+        <textarea class="form-textarea" id="mainDesc" placeholder="Kya problem hai..."></textarea>
+      </div>
+      <button class="vote-btn" style="max-width:200px" onclick="submitMaintenance()">📤 Submit Request</button>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ SWEET PAGE ══ -->
+<div class="page" id="page-sweet">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">🍬 Monthly <span>Sweet Gift</span></div>
+      <div style="color:var(--text2);font-size:.82rem">Har mahine last Sunday — sabko sweet milegi!</div>
+    </div>
+    <div id="sweetEligCard" class="fade-up" style="border-radius:18px;padding:18px 22px;margin-bottom:20px;border:2px solid;display:flex;align-items:center;gap:14px;flex-wrap:wrap"></div>
+    <div class="sweet-fund-banner fade-up">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:4px">🍮 Sweet Fund — Har Mahine ka Inaam</div>
+      <div style="color:var(--text2);font-size:.82rem;margin-bottom:16px">Sabse zyada credits bachane wale top 3 ko special sweet milegi!</div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text2);margin-bottom:5px">
+          <span>🍬 Sweet Fund</span><strong id="sweetFundAmt">— pts</strong>
+        </div>
+        <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+          <div id="sweetFundFill" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent4),var(--accent2));transition:width .8s;width:0%"></div>
+        </div>
+      </div>
+      <div id="sweetLeaderboard" style="margin-bottom:14px"></div>
+      <button class="sweet-claim-btn" id="sweetClaimBtn" onclick="claimSweet()">🎁 Free Sweet Lo (Month mein 2 baar FREE!)</button>
+      <div style="color:var(--text2);font-size:.74rem;text-align:center;margin-top:8px">
+        Har mahine last Sunday ko sabko sweet milegi. 2 baar bilkul free — koi credit nahi katega!
+      </div>
+    </div>
+    <div class="ai-panel fade-up">
+      <div class="ai-icon">📖</div>
+      <div class="ai-title">Sweet System Rules</div>
+      <div class="ai-text">
+        <strong>1.</strong> Har mahine last Sunday ko <strong>sabko sweet milegi</strong> — equal distribution.<br><br>
+        <strong>2.</strong> Month mein <strong>2 baar sweet bilkul FREE</strong> — koi credit nahi katega! Sweet budget mein hogi.<br><br>
+        <strong>3.</strong> Credits bachao → Sweet Fund mein jaata hai → Top 3 savers ko extra special gift!<br><br>
+        <strong>4.</strong> Sirf verified students eligible hain.
+      </div>
+      <div class="ai-chips">
+        <span class="ai-chip" style="color:var(--accent3)">🎁 2x FREE / Month</span>
+        <span class="ai-chip" style="color:var(--accent4)">📅 Last Sunday = Sweet Day</span>
+        <span class="ai-chip" style="color:var(--accent)">🏆 Top 3 Extra Gift</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ FEEDBACK PAGE ══ -->
+<div class="page" id="page-feedback">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">💬 AI Feedback <span>Analyzer</span></div>
+    </div>
+    <div class="ai-panel fade-up">
+      <div class="ai-icon">📊</div>
+      <div class="ai-title">This Month's Sentiment</div>
+      <div class="ai-text">AI 200+ reviews analyze kar raha hai — management ko report jayegi automatically.</div>
+      <div class="ai-chips">
+        <span class="ai-chip" style="color:var(--accent3)">✅ Food: 73%+</span>
+        <span class="ai-chip" style="color:var(--accent2)">⚠️ Cleanliness Alert</span>
+        <span class="ai-chip" style="color:var(--accent4)">📢 Medical: Review</span>
+      </div>
+    </div>
+    <div class="feedback-form fade-up">
+      <div class="section-title" style="margin-bottom:18px">✍️ Submit <span>Feedback</span></div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="fbCat">
+          <option>Food Quality</option><option>Cleanliness</option><option>Water Facilities</option>
+          <option>Medical / Health</option><option>Maintenance Speed</option><option>Security</option><option>General</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quick Tags</label>
+        <div class="sentiment-row">
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">😍 Excellent</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">👍 Good</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">😐 Average</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">👎 Poor</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">💧 Water Issue</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">🧹 Dirty</span>
+          <span class="sentiment-chip" onclick="this.classList.toggle('active')">🍲 Oily Food</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apna Experience</label>
+        <textarea class="form-textarea" id="fbComment" placeholder="AI analyze karke management ko bhejega..."></textarea>
+      </div>
+      <button class="vote-btn" style="max-width:240px" onclick="submitFeedback()">🤖 Submit & Analyze</button>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PAGE ══ -->
+<div class="page" id="page-admin">
+  <div class="container">
+    <div class="section-header fade-up" style="margin-top:18px">
+      <div class="section-title">🛡 Admin <span>Panel</span></div>
+      <button class="btn-sm btn-accent" onclick="loadAdminData()">🔄 Refresh</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:22px" class="fade-up" id="adminStats"></div>
+
+    <div class="section-header fade-up">
+      <div class="section-title">⏳ Pending <span>Verification</span></div>
+      <span style="color:var(--text2);font-size:.8rem">Inhe verify karo — tabhi rating de payenge</span>
+    </div>
+    <div id="pendingList" class="fade-up">
+      <div style="color:var(--text2);text-align:center;padding:20px">Loading...</div>
+    </div>
+
+    <div class="section-header fade-up" style="margin-top:22px">
+      <div class="section-title">✅ Verified <span>Students</span></div>
+    </div>
+    <div id="verifiedList" class="fade-up"></div>
+
+    <div class="section-header fade-up" style="margin-top:22px">
+      <div class="section-title">📊 This Month's <span>Ratings</span></div>
+    </div>
+    <div id="ratingsStatsPanel" class="fade-up card"></div>
+
+    <div class="section-header fade-up" style="margin-top:22px">
+      <div class="section-title">🔄 Credit <span>Controls</span></div>
+    </div>
+    <div class="card fade-up" style="margin-bottom:22px">
+      <div style="color:var(--text2);font-size:.82rem;margin-bottom:14px;line-height:1.6">
+        Manual credit reset — Auto reset 1st of every month hota hai. Daily deduction midnight pe auto hoti hai.
+      </div>
+      <button class="btn-sm btn-accent" onclick="adminResetCredits()">🔄 Manual Credit Reset (Sabke)</button>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══ GIFT MODAL ══ -->
+<div class="gift-overlay" id="giftOverlay">
+  <div class="gift-box">
+    <div class="gift-emoji" id="giftEmoji">🎁</div>
+    <h2 id="giftTitle">Sweet Mili!</h2>
+    <p id="giftDesc"></p>
+    <button class="vote-btn" onclick="document.getElementById('giftOverlay').classList.remove('show')">🍬 Theek Hai!</button>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+// ══ CONFIG ══════════════════════════════════════════════════════════
+const API = '/api';
+let token = localStorage.getItem('hhToken') || '';
+let currentUser = null;
+let selectedFood = null;
+let activeSlot = 'breakfast';
+let userRatings = {};
+let menus = {};
+
+// ══ API HELPER ════════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  return res.json();
+}
+
+// ══ TOAST ════════════════════════════════════════════════════════
+function toast(icon, msg) {
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ══ AUTH ══════════════════════════════════════════════════════════
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  clearAuthMessages();
+}
+
+function clearAuthMessages() {
+  const e = document.getElementById('authErr'), o = document.getElementById('authOk');
+  e.style.display = 'none'; o.style.display = 'none';
+}
+
+function showAuthErr(msg) {
+  const e = document.getElementById('authErr');
+  e.textContent = msg; e.style.display = 'block';
+  document.getElementById('authOk').style.display = 'none';
+}
+
+function showAuthOk(msg) {
+  const o = document.getElementById('authOk');
+  o.textContent = msg; o.style.display = 'block';
+  document.getElementById('authErr').style.display = 'none';
+}
+
+async function doLogin() {
+  clearAuthMessages();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthErr('Email aur password dono chahiye!');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Logging in...';
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    if (!data.success) { showAuthErr(data.message); return; }
+    token = data.token;
+    localStorage.setItem('hhToken', token);
+    currentUser = data.user;
+    onLoggedIn();
+  } catch (e) {
+    showAuthErr('Network error — server se connect nahi ho pa raha!');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔑 Login Karo';
+  }
+}
+
+async function doRegister() {
+  clearAuthMessages();
+  const fields = {
+    name: document.getElementById('regName').value.trim(),
+    email: document.getElementById('regEmail').value.trim(),
+    password: document.getElementById('regPassword').value,
+    phone: document.getElementById('regPhone').value.trim(),
+    institutionType: document.getElementById('regInstType').value,
+    institutionName: document.getElementById('regInstName').value.trim(),
+    studentId: document.getElementById('regStudentId').value.trim(),
+    roomNumber: document.getElementById('regRoom').value.trim()
+  };
+  if (Object.values(fields).some(v => !v)) return showAuthErr('Saari fields bharo!');
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = 'Registering...';
+  try {
+    const data = await api('POST', '/auth/register', fields);
+    if (!data.success) { showAuthErr(data.message); return; }
+    token = data.token;
+    localStorage.setItem('hhToken', token);
+    currentUser = data.user;
+    showAuthOk('Registration successful! Admin se verification ka wait karo.');
+    setTimeout(onLoggedIn, 1500);
+  } catch (e) {
+    showAuthErr('Network error!');
+  } finally {
+    btn.disabled = false; btn.textContent = '📝 Register Karo';
+  }
+}
+
+function doLogout() {
+  token = '';
+  currentUser = null;
+  localStorage.removeItem('hhToken');
+  document.getElementById('authOverlay').style.display = 'flex';
+  toast('👋', 'Logout ho gaye!');
+}
+
+function onLoggedIn() {
+  document.getElementById('authOverlay').style.display = 'none';
+  updateNavUser();
+  loadMenus();
+  loadHomePage();
+  if (currentUser.role === 'admin' || currentUser.role === 'warden') {
+    document.getElementById('adminTab').style.display = 'inline-flex';
+  }
+  if (!currentUser.isVerified) {
+    document.getElementById('verifyWarning').style.display = 'block';
+    document.getElementById('unverifiedFoodMsg').style.display = 'block';
+    document.getElementById('unverifiedRatingMsg').style.display = 'block';
+  }
+}
+
+function updateNavUser() {
+  document.getElementById('navCredits').textContent = currentUser.credits || 0;
+  document.getElementById('navUser').textContent = currentUser.name + ' — Logout';
+}
+
+// ══ AUTO LOGIN ════════════════════════════════════════════════════
+async function tryAutoLogin() {
+  if (!token) return;
+  try {
+    const data = await api('GET', '/auth/me');
+    if (data.success) {
+      currentUser = data.user;
+      onLoggedIn();
+    } else {
+      token = ''; localStorage.removeItem('hhToken');
+    }
+  } catch (e) {
+    console.log('Auto-login failed');
+  }
+}
+
+// ══ NAVIGATION ════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = ['home','food','ratings','credits','facilities','sweet','feedback','admin'];
+  const idx = tabs.indexOf(id);
+  const tabEls = document.querySelectorAll('.nav-tab');
+  if (tabEls[idx]) tabEls[idx].classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (id === 'food') loadVoteCounts();
+  if (id === 'ratings') loadRatings();
+  if (id === 'credits') loadCredits();
+  if (id === 'sweet') loadSweet();
+  if (id === 'admin' && (currentUser?.role === 'admin' || currentUser?.role === 'warden')) loadAdminData();
+}
+
+function toggleTheme() {
+  const h = document.documentElement;
+  h.dataset.theme = h.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+// ══ HOME PAGE ════════════════════════════════════════════════════
+async function loadHomePage() {
+  document.getElementById('statCredits').textContent = currentUser.credits || 0;
+  document.getElementById('statExcess').textContent = currentUser.excessCredits || 0;
+
+  // Load average rating
+  try {
+    const data = await api('GET', '/ratings/average');
+    if (data.success && data.average) {
+      document.getElementById('statRating').textContent = data.average.overall || '—';
+      document.getElementById('statRating').style.background = 'none';
+      document.getElementById('statRating').style.webkitTextFillColor = 'var(--accent3)';
+    }
+  } catch(e) {}
+
+  // AI insights
+  const day = new Date().toLocaleDateString('en-IN', { weekday:'long' });
+  document.getElementById('aiInsightText').innerHTML =
+    `Aaj <strong>${day}</strong> hai. ${currentUser.isVerified ? 'Aap verified student hain — voting aur ratings available hain!' : 'Admin se verification ka wait karo.'} Credits bachao aur sweet jeeto!`;
+  document.getElementById('aiChip1').textContent = `💰 Credits: ${currentUser.credits}`;
+  document.getElementById('aiChip2').textContent = `⚡ Excess: ${currentUser.excessCredits}`;
+  document.getElementById('aiChip3').textContent = currentUser.isVerified ? '✅ Verified' : '⏳ Pending Verify';
+}
+
+// ══ MENUS ════════════════════════════════════════════════════════
+async function loadMenus() {
+  try {
+    const data = await api('GET', '/votes/menus');
+    if (data.success) { menus = data.menus; renderFoodCards(); }
+  } catch(e) {}
+}
+
+// ══ FOOD VOTE ════════════════════════════════════════════════════
+const MEAL_TIMES = { breakfast:7*60, lunch:12*60, snacks:16*60, dinner:19*60 };
+const SLOT_LABELS = { breakfast:'Nasta', lunch:'Lunch', snacks:'Snacks', dinner:'Dinner' };
+
+function getVotingStatus(slot) {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const mealMins = MEAL_TIMES[slot];
+  const openMins = mealMins - 900;  // 15hr
+  const closeMins = mealMins - 150; // 2.5hr
+
+  function fmt(m) {
+    const n = ((m % 1440) + 1440) % 1440;
+    const h = Math.floor(n/60), mn = n % 60;
+    return `${h>12?h-12:h||12}:${String(mn).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+  }
+
+  if (openMins < 0 && nowMins < closeMins) return { open:true, msg:`Voting khuli hai — band hogi ${fmt(closeMins)}` };
+  if (closeMins > 0 && nowMins >= closeMins) return { open:false, missed:true, msg:`❌ Voting band ho gayi! (${fmt(closeMins)} tak thi)` };
+  if (openMins >= 0 && nowMins < openMins) return { open:false, notYet:true, msg:`🔒 Voting ${fmt(openMins)} se khulegi` };
+  return { open:true, msg:`⏰ Voting khuli — band hogi ${fmt(closeMins)}` };
+}
+
+function selectSlot(el, slot) {
+  document.querySelectorAll('.meal-slot-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeSlot = slot;
+  selectedFood = null;
+  renderFoodCards();
+  loadVoteCounts();
+  document.getElementById('foodSubtitle').textContent = SLOT_LABELS[slot] + ' ka menu';
+  updateDeadlineBanner();
+}
+
+function updateDeadlineBanner() {
+  const banner = document.getElementById('deadlineBanner');
+  const voted = currentUser?.todayVotes?.[activeSlot];
+  const today = new Date().toISOString().slice(0,10);
+  const isToday = currentUser?.todayVotes?.lastVoteDate === today;
+
+  if (isToday && voted) {
+    banner.style.cssText = 'display:block;background:rgba(106,255,184,.1);border-color:rgba(106,255,184,.4);color:var(--accent3)';
+    banner.textContent = '✅ Is meal ke liye aaj vote ho chuka hai!';
+    document.getElementById('submitVoteBtn').disabled = true;
+    return;
+  }
+
+  const status = getVotingStatus(activeSlot);
+  if (status.missed) {
+    banner.style.cssText = 'display:block;background:rgba(255,106,155,.1);border-color:rgba(255,106,155,.4);color:var(--accent2)';
+  } else if (status.notYet) {
+    banner.style.cssText = 'display:block;background:rgba(124,106,255,.1);border-color:rgba(124,106,255,.4);color:var(--accent)';
+  } else {
+    banner.style.cssText = 'display:block;background:rgba(255,184,106,.1);border-color:rgba(255,184,106,.4);color:var(--accent4)';
+  }
+  banner.textContent = status.msg;
+  document.getElementById('submitVoteBtn').disabled = !status.open || !currentUser?.isVerified;
+}
+
+function renderFoodCards() {
+  const items = menus[activeSlot] || [];
+  const grid = document.getElementById('voteGrid');
+  const today = new Date().toISOString().slice(0,10);
+  const voted = currentUser?.todayVotes?.lastVoteDate === today && currentUser?.todayVotes?.[activeSlot];
+
+  grid.innerHTML = items.map(f => `
+    <div class="food-card ${selectedFood===f.id?'selected':''} ${voted?'voted':''}"
+         id="fc-${f.id}" onclick="pickFood('${f.id}')">
+      ${f.free ? '<div class="free-badge">FREE</div>' : ''}
+      <span class="food-emoji">${f.emoji}</span>
+      <div class="food-name">${f.name}</div>
+      <div class="food-meta">
+        <span class="food-tag cr">${f.credits===0?'🎁 Free':'💰 '+f.credits+' cr'}</span>
+      </div>
+      <div class="vote-bar-wrap">
+        <div class="vote-bar-label"><span id="vc-${f.id}">— votes</span><span id="vp-${f.id}">—%</span></div>
+        <div class="vote-bar"><div class="vote-bar-fill" id="vb-${f.id}" style="width:0%"></div></div>
+      </div>
+    </div>`).join('');
+  updateDeadlineBanner();
+}
+
+function pickFood(id) {
+  const today = new Date().toISOString().slice(0,10);
+  if (currentUser?.todayVotes?.lastVoteDate === today && currentUser?.todayVotes?.[activeSlot]) {
+    return toast('ℹ️', 'Is meal ke liye vote ho chuka hai!');
+  }
+  selectedFood = id;
+  document.querySelectorAll('.food-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fc-'+id)?.classList.add('selected');
+}
+
+async function loadVoteCounts() {
+  const today = new Date().toISOString().slice(0,10);
+  try {
+    const data = await api('GET', `/votes/counts/${today}/${activeSlot}`);
+    if (!data.success) return;
+    const items = menus[activeSlot] || [];
+    items.forEach(f => {
+      const cnt = data.counts[f.id] || 0;
+      const pct = data.total ? Math.round(cnt/data.total*100) : 0;
+      const vc = document.getElementById('vc-'+f.id);
+      const vp = document.getElementById('vp-'+f.id);
+      const vb = document.getElementById('vb-'+f.id);
+      if (vc) vc.textContent = cnt + ' votes';
+      if (vp) vp.textContent = pct + '%';
+      if (vb) vb.style.width = pct + '%';
+    });
+    // Update slot vote count
+    document.getElementById('slotv-' + activeSlot).textContent = data.total + ' votes';
+  } catch(e) {}
+}
+
+async function submitVote() {
+  if (!selectedFood) return toast('⚠️', 'Pehle koi item select karo!');
+  if (!currentUser?.isVerified) return toast('❌', 'Verified hona zaroori hai!');
+  const useExcess = document.getElementById('useExcessToggle').checked;
+  const btn = document.getElementById('submitVoteBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const data = await api('POST', '/votes/vote', { mealSlot: activeSlot, foodItemId: selectedFood, useExcessCredits: useExcess });
+    if (!data.success) { toast('❌', data.message); return; }
+    toast('✅', data.message);
+    currentUser.credits = data.credits;
+    currentUser.excessCredits = data.excessCredits;
+    currentUser.todayVotes = data.todayVotes;
+    document.getElementById('navCredits').textContent = data.credits;
+    document.getElementById('excessBadge').textContent = data.excessCredits;
+    loadVoteCounts();
+    updateDeadlineBanner();
+  } catch(e) {
+    toast('❌', 'Network error!');
+  } finally {
+    btn.disabled = false; btn.textContent = '🗳 Submit My Vote';
+  }
+}
+
+// ══ RATINGS ══════════════════════════════════════════════════════
+const RATING_CATS = [
+  { id:'food',    icon:'🍲', name:'Food Quality',     desc:'Taste, nutrition, oiliness' },
+  { id:'clean',   icon:'🧹', name:'Room Cleanliness', desc:'Room, bathroom, common area' },
+  { id:'water',   icon:'💧', name:'Water (Hot/Cold)',  desc:'Geyser availability' },
+  { id:'drink',   icon:'🚰', name:'Drinking Water',   desc:'RO water quality' },
+  { id:'medical', icon:'🏥', name:'Medical Facility', desc:'Doctor, first aid' },
+  { id:'maint',   icon:'🔧', name:'Maintenance Speed', desc:'Problem fix time' },
+];
+
+async function loadRatings() {
+  // Load average
+  try {
+    const avg = await api('GET', '/ratings/average');
+    if (avg.success && avg.average) {
+      document.getElementById('overallScore').textContent = avg.average.overall || '—';
+      document.getElementById('ratingCount').textContent = `Based on ${avg.count} verified student ratings`;
+    } else {
+      document.getElementById('ratingCount').textContent = 'Abhi tak koi rating nahi';
+    }
+  } catch(e) {}
+
+  // Load my existing rating
+  try {
+    const mine = await api('GET', '/ratings/mine');
+    if (mine.success && mine.rating) {
+      Object.entries(mine.rating.ratings).forEach(([cat, val]) => {
+        if (val) { userRatings[cat] = val; }
+      });
+    }
+  } catch(e) {}
+
+  renderRatingCards();
+}
+
+function renderRatingCards() {
+  const grid = document.getElementById('ratingGrid');
+  const disabled = !currentUser?.isVerified;
+  grid.innerHTML = RATING_CATS.map(r => `
+    <div class="rating-card fade-up">
+      <div style="font-size:1.8rem;margin-bottom:8px">${r.icon}</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:4px">${r.name}</div>
+      <div style="color:var(--text2);font-size:.78rem;margin-bottom:12px">${r.desc}</div>
+      <div class="stars" id="stars-${r.id}">
+        ${[1,2,3,4,5].map(n=>`<span class="star ${(userRatings[r.id]||0)>=n?'active':''}"
+          onclick="${disabled?'toast(\"❌\",\"Sirf verified students rate kar sakte hain!\")':'setRating(\"'+r.id+'\",'+n+')'}">${n<=3?'⭐':'⭐'}</span>`).join('')}
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--accent4),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="score-${r.id}">
+        ${userRatings[r.id] ? userRatings[r.id]+'.0' : '—'}
+      </div>
+    </div>`).join('');
+}
+
+function setRating(cat, val) {
+  if (!currentUser?.isVerified) return toast('❌', 'Sirf verified students rate kar sakte hain!');
+  userRatings[cat] = val;
+  const stars = document.querySelectorAll(`#stars-${cat} .star`);
+  stars.forEach((s, i) => s.classList.toggle('active', i < val));
+  document.getElementById('score-'+cat).textContent = val + '.0';
+}
+
+async function submitRatings() {
+  if (!currentUser?.isVerified) return toast('❌', 'Verified hona zaroori hai!');
+  if (Object.keys(userRatings).length < 3) return toast('⚠️', 'Kam se kam 3 categories rate karo!');
+  const btn = document.getElementById('submitRatingBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const data = await api('POST', '/ratings', userRatings);
+    if (!data.success) { toast('❌', data.message); return; }
+    toast('✅', 'Rating submit ho gayi!');
+    loadRatings();
+  } catch(e) {
+    toast('❌', 'Network error!');
+  } finally {
+    btn.disabled = false; btn.textContent = '📤 Submit Ratings';
+  }
+}
+
+// ══ CREDITS ══════════════════════════════════════════════════════
+async function loadCredits() {
+  const user = await api('GET', '/auth/me');
+  if (!user.success) return;
+  currentUser = user.user;
+  const mc = currentUser.monthlyCredits || 1;
+  const cr = currentUser.credits || 0;
+  const pct = Math.round(cr/mc*100);
+  document.getElementById('walletAmount').textContent = cr;
+  document.getElementById('walletSub').textContent = `of ${mc} monthly credits`;
+  document.getElementById('creditFill').style.width = pct + '%';
+  document.getElementById('walletSpent').textContent = (mc-cr) + ' spent';
+  document.getElementById('walletTotal').textContent = mc;
+  document.getElementById('excessAmount').textContent = currentUser.excessCredits || 0;
+  document.getElementById('excessUsedDisplay').textContent = currentUser.excessUsedThisMonth || 0;
+  document.getElementById('excessBadge').textContent = currentUser.excessCredits || 0;
+  document.getElementById('navCredits').textContent = cr;
+
+  // Credit history
+  try {
+    const hist = await api('GET', '/votes/credit-history');
+    const el = document.getElementById('creditHistory');
+    if (!hist.history?.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:20px">Abhi koi history nahi</div>'; return; }
+    el.innerHTML = hist.history.map(h => `
+      <div class="ch-item">
+        <div class="ch-dot ${h.type}"></div>
+        <div class="ch-info">
+          <div class="ch-title">${h.description}</div>
+          <div class="ch-date">${new Date(h.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+        <div class="ch-amount ${h.type}">${h.amount>0?'+'+h.amount:h.amount===0?'FREE':h.amount}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ══ FACILITIES ════════════════════════════════════════════════════
+const FACILITIES = [
+  { icon:'🍲', title:'Mess / Food Quality',     status:'warn', label:'Needs Improvement', desc:'AI: oily food complaints up. Action Pending.' },
+  { icon:'🧹', title:'Room Cleanliness',         status:'bad',  label:'Alert Sent',        desc:'Management ko alert bheja. Inspection Thursday.' },
+  { icon:'♨️', title:'Hot Water (Geyser)',       status:'ok',   label:'Working Fine',      desc:'Available 6AM-10AM & 6PM-10PM all blocks.' },
+  { icon:'🚰', title:'Drinking Water (RO)',       status:'ok',   label:'Purified & Safe',   desc:'Last serviced 3 days ago. TDS: 48 ppm.' },
+  { icon:'🏥', title:'Medical Facility',          status:'warn', label:'Doctor on Call',    desc:'Regular visit: Mon/Wed/Fri. Emergency: Warden.' },
+  { icon:'🌙', title:'Induction Kitchen (Night)', status:'ok',   label:'Open Tonight',      desc:'10PM-12AM. Free induction available.' },
+  { icon:'🔒', title:'Security',                  status:'ok',   label:'24/7 Guard',        desc:'CCTV + guard at all entries.' },
+  { icon:'📶', title:'WiFi / Internet',           status:'warn', label:'Slow Speed',        desc:'ISP issue B-Block. Fix expected: 2 days.' },
+];
+
+(function initFacilities() {
+  document.getElementById('facilityGrid').innerHTML = FACILITIES.map(f => `
+    <div class="facility-card">
+      <div class="fac-icon">${f.icon}</div>
+      <div class="fac-title">${f.title}</div>
+      <div class="fac-status ${f.status}"><div class="fac-dot"></div>${f.label}</div>
+      <div class="fac-desc">${f.desc}</div>
+    </div>`).join('');
+})();
+
+function submitMaintenance() {
+  const room = document.getElementById('mainRoom').value;
+  const desc = document.getElementById('mainDesc').value;
+  if (!room || !desc) return toast('⚠️', 'Room number aur description chahiye!');
+  toast('🔧', 'Request submit! 24 hrs mein response milega.');
+  document.getElementById('mainRoom').value = '';
+  document.getElementById('mainDesc').value = '';
+}
+
+// ══ SWEET ════════════════════════════════════════════════════════
+async function loadSweet() {
+  const me = await api('GET', '/auth/me');
+  if (me.success) { currentUser = me.user; }
+  const cr = currentUser.credits || 0;
+  const sweetLeft = 2 - (currentUser.sweetUsedThisMonth || 0);
+  const eligible = cr >= 10;
+  const card = document.getElementById('sweetEligCard');
+
+  if (eligible) {
+    card.style.cssText = 'border-radius:18px;padding:18px 22px;margin-bottom:20px;border:2px solid rgba(106,255,184,.4);display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(106,255,184,.06)';
+    card.innerHTML = `
+      <div style="font-size:2.2rem">🍬</div>
+      <div style="flex:1">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent3)">✅ Aap Sweet Ke Eligible Hain!</div>
+        <div style="color:var(--text2);font-size:.8rem;margin-top:4px">
+          ${cr} credits bache hain (min 10 chahiye). 
+          <strong style="color:var(--accent3)">${sweetLeft} free sweet${sweetLeft!==1?'s':''} baaki</strong> is mahine!
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--accent3)">${cr}</div>
+        <div style="font-size:.7rem;color:var(--text2)">credits</div>
+      </div>`;
+  } else {
+    card.style.cssText = 'border-radius:18px;padding:18px 22px;margin-bottom:20px;border:2px solid rgba(255,106,155,.35);display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(255,106,155,.06)';
+    card.innerHTML = `
+      <div style="font-size:2.2rem">😔</div>
+      <div style="flex:1">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent2)">❌ Sweet Nahi Milegi</div>
+        <div style="color:var(--text2);font-size:.8rem;margin-top:4px">Sirf ${cr} credits hain — min 10 chahiye.</div>
+      </div>`;
+  }
+
+  const btn = document.getElementById('sweetClaimBtn');
+  btn.disabled = !eligible || sweetLeft <= 0;
+  btn.textContent = sweetLeft > 0
+    ? `🎁 Free Sweet Lo — ${sweetLeft} Baar Baaki (0 Credits!)`
+    : '✅ Is Mahine Ki Dono Free Sweets Use Ho Gayi';
+
+  // Leaderboard
+  try {
+    const lb = await api('GET', '/votes/sweet-leaderboard');
+    if (lb.success) {
+      const maxC = Math.max(...lb.leaderboard.map(r=>r.credits), 1);
+      const emojis = ['🥇','🥈','🥉','4','5','6','7','8','9','10'];
+      document.getElementById('sweetLeaderboard').innerHTML = lb.leaderboard.map((r,i) => `
+        <div class="lb-row ${r._id===currentUser.id?'lb-you':''}">
+          <div class="lb-rank ${i<3?'r'+(i+1):'rn'}">${emojis[i]}</div>
+          <div style="flex:1;font-size:.85rem;font-weight:${r._id===currentUser.id?700:400}">${r.name}${r._id===currentUser.id?' 👈':''}</div>
+          <div class="lb-bar"><div class="lb-bar-fill" style="width:${r.credits/maxC*100}%"></div></div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--accent4);min-width:50px;text-align:right">${r.credits} cr</div>
+        </div>`).join('');
+      const myIdx = lb.leaderboard.findIndex(r => r._id == currentUser.id);
+      document.getElementById('sweetFundAmt').textContent = lb.leaderboard.reduce((s,r)=>s+r.credits,0) + ' pts';
+    }
+  } catch(e) {}
+}
+
+async function claimSweet() {
+  if (!currentUser?.isVerified) return toast('❌', 'Verified hona zaroori hai!');
+  const btn = document.getElementById('sweetClaimBtn');
+  btn.disabled = true;
+  try {
+    const data = await api('POST', '/votes/sweet-claim');
+    if (!data.success) { toast('❌', data.message); return; }
+    document.getElementById('giftEmoji').textContent = '🍬';
+    document.getElementById('giftTitle').textContent = 'Sweet Mili! Bilkul FREE 🎉';
+    document.getElementById('giftDesc').textContent = data.message + ' Canteen ya warden se claim karo!';
+    document.getElementById('giftOverlay').classList.add('show');
+    currentUser.sweetUsedThisMonth = (currentUser.sweetUsedThisMonth||0) + 1;
+    loadSweet();
+  } catch(e) {
+    toast('❌', 'Network error!');
+    btn.disabled = false;
+  }
+}
+
+// ══ FEEDBACK ════════════════════════════════════════════════════
+function submitFeedback() {
+  const comment = document.getElementById('fbComment').value;
+  if (comment.length < 10) return toast('⚠️', 'Thoda zyada detail likho!');
+  toast('🤖', 'AI analyze kar raha hai — management ko report jayegi!');
+  document.getElementById('fbComment').value = '';
+  document.querySelectorAll('.sentiment-chip.active').forEach(c => c.classList.remove('active'));
+}
+
+// ══ ADMIN ════════════════════════════════════════════════════════
+async function loadAdminData() {
+  try {
+    const [students, ratingStats] = await Promise.all([
+      api('GET', '/admin/students'),
+      api('GET', '/admin/ratings-stats')
+    ]);
+
+    if (students.success) {
+      const pending = students.students.filter(s => !s.isVerified);
+      const verified = students.students.filter(s => s.isVerified);
+
+      document.getElementById('adminStats').innerHTML = `
+        <div class="stat-card"><div class="stat-num" style="-webkit-text-fill-color:var(--accent2)">${pending.length}</div><div class="stat-label">Pending Verify</div></div>
+        <div class="stat-card"><div class="stat-num" style="-webkit-text-fill-color:var(--accent3)">${verified.length}</div><div class="stat-label">Verified Students</div></div>
+        <div class="stat-card"><div class="stat-num" style="-webkit-text-fill-color:var(--accent4)">${students.students.length}</div><div class="stat-label">Total Registered</div></div>
+        <div class="stat-card"><div class="stat-num" style="-webkit-text-fill-color:var(--accent)">${ratingStats.count||0}</div><div class="stat-label">Ratings This Month</div></div>`;
+
+      document.getElementById('pendingList').innerHTML = pending.length
+        ? pending.map(s => studentRow(s, false)).join('')
+        : '<div style="color:var(--text2);padding:14px">Koi pending verification nahi!</div>';
+
+      document.getElementById('verifiedList').innerHTML = verified.length
+        ? verified.map(s => studentRow(s, true)).join('')
+        : '<div style="color:var(--text2);padding:14px">Abhi koi verified student nahi</div>';
+    }
+
+    if (ratingStats.success && ratingStats.stats) {
+      const s = ratingStats.stats;
+      const fields = { food:'Food', clean:'Cleanliness', water:'Hot Water', drink:'Drinking Water', medical:'Medical', maint:'Maintenance' };
+      document.getElementById('ratingsStatsPanel').innerHTML = `
+        <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:14px">Overall: <span style="color:var(--accent3)">${s.overall}/5</span> — ${ratingStats.count} verified student ratings</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          ${Object.entries(fields).map(([k,v]) => `
+          <div style="background:var(--bg3);border-radius:12px;padding:12px">
+            <div style="font-size:.78rem;color:var(--text2)">${v}</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:${s[k]>=4?'var(--accent3)':s[k]>=3?'var(--accent4)':'var(--accent2)'}">${s[k]||'—'}</div>
+            ${s[k]<3.5?'<div style="font-size:.7rem;color:var(--accent2)">⚠️ Alert sent</div>':''}
+          </div>`).join('')}
+        </div>`;
+    } else {
+      document.getElementById('ratingsStatsPanel').innerHTML = '<div style="color:var(--text2)">Is mahine abhi koi rating nahi aai.</div>';
+    }
+  } catch(e) { toast('❌', 'Admin data load failed: ' + e.message); }
+}
+
+function studentRow(s, isVerified) {
+  return `
+  <div class="student-row">
+    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.9rem;flex-shrink:0">
+      ${s.name.charAt(0).toUpperCase()}
+    </div>
+    <div class="student-info">
+      <div class="student-name">${s.name} ${isVerified ? '<span class="verified-badge">✓ Verified</span>' : '<span class="unverified-badge">⏳ Pending</span>'}</div>
+      <div class="student-meta">
+        📧 ${s.email} &nbsp;|&nbsp; 📱 ${s.phone}<br>
+        🏫 ${s.institutionName} (${s.institutionType}) &nbsp;|&nbsp; 🪪 ${s.studentId}<br>
+        🚪 Room: ${s.roomNumber} &nbsp;|&nbsp; 💰 ${s.credits} credits
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${!isVerified
+        ? `<button class="verify-btn approve" onclick="verifyStudent('${s._id}', true)">✅ Verify</button>`
+        : `<button class="verify-btn reject" onclick="verifyStudent('${s._id}', false)">🚫 Unverify</button>`
+      }
+    </div>
+  </div>`;
+}
+
+async function verifyStudent(userId, approve) {
+  try {
+    const endpoint = approve ? `/admin/verify/${userId}` : `/admin/unverify/${userId}`;
+    const data = await api('PATCH', endpoint, { note: 'Admin ne verify kiya' });
+    if (!data.success) { toast('❌', data.message); return; }
+    toast('✅', data.message);
+    loadAdminData();
+  } catch(e) { toast('❌', 'Error: ' + e.message); }
+}
+
+async function adminResetCredits() {
+  if (!confirm('Kya aap sure hain? Sabke credits reset ho jayenge!')) return;
+  try {
+    const data = await api('POST', '/admin/reset-credits');
+    toast(data.success ? '✅' : '❌', data.message);
+  } catch(e) { toast('❌', 'Error!'); }
+}
+
+// ══ INIT ════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // If token exists try auto-login, otherwise show auth
+  if (token) {
+    tryAutoLogin();
+  }
+  // Theme from storage
+  const saved = localStorage.getItem('hhTheme');
+  if (saved) document.documentElement.dataset.theme = saved;
+});
+
+// Save theme
+const _origToggle = window.toggleTheme;
+window.toggleTheme = function() {
+  const h = document.documentElement;
+  h.dataset.theme = h.dataset.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('hhTheme', h.dataset.theme);
+};
+</script>
+</body>
+</html>
