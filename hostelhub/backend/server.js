@@ -13,7 +13,7 @@ const app = express();
 
 // ── MIDDLEWARE ────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : '*',
+  origin: '*',
   credentials: true
 }));
 app.use(express.json());
