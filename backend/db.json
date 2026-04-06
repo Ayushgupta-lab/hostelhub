@@ -1,0 +1,503 @@
+{
+  "hostels": [
+    {
+      "id": "h1",
+      "name": "IIT Delhi — Zanskar Hostel",
+      "type": "iit",
+      "city": "Delhi",
+      "icon": "🏛️",
+      "totalStudents": 312
+    },
+    {
+      "id": "h2",
+      "name": "IIT Bombay — Hostel 14",
+      "type": "iit",
+      "city": "Mumbai",
+      "icon": "🌊",
+      "totalStudents": 280
+    },
+    {
+      "id": "h3",
+      "name": "IIT Kanpur — Hall 4",
+      "type": "iit",
+      "city": "Kanpur",
+      "icon": "🏗",
+      "totalStudents": 256
+    },
+    {
+      "id": "h4",
+      "name": "IIT Madras — Krishna Hostel",
+      "type": "iit",
+      "city": "Chennai",
+      "icon": "🌴",
+      "totalStudents": 290
+    },
+    {
+      "id": "h5",
+      "name": "Medicaps University Hostel",
+      "type": "private",
+      "city": "Indore",
+      "icon": "🏥",
+      "totalStudents": 420
+    },
+    {
+      "id": "h6",
+      "name": "IET Indore — Boys Hostel",
+      "type": "private",
+      "city": "Indore",
+      "icon": "⚡",
+      "totalStudents": 380
+    },
+    {
+      "id": "h7",
+      "name": "NIT Trichy — Cauvery Hostel",
+      "type": "govt",
+      "city": "Trichy",
+      "icon": "🌊",
+      "totalStudents": 340
+    },
+    {
+      "id": "h8",
+      "name": "BITS Pilani — Ram Bhawan",
+      "type": "govt",
+      "city": "Pilani",
+      "icon": "⭐",
+      "totalStudents": 268
+    },
+    {
+      "id": "h9",
+      "name": "Delhi University — Mansarovar",
+      "type": "govt",
+      "city": "Delhi",
+      "icon": "🦚",
+      "totalStudents": 220
+    },
+    {
+      "id": "h10",
+      "name": "Stanza Living — Belvedere",
+      "type": "private",
+      "city": "Bangalore",
+      "icon": "🏢",
+      "totalStudents": 180
+    }
+  ],
+  "users": {
+    "admin@hostel.com": {
+      "id": "u1",
+      "name": "Admin Kumar",
+      "email": "admin@hostel.com",
+      "phone": "9000011111",
+      "role": "admin",
+      "isVerified": true,
+      "credits": 0,
+      "monthlyCredits": 0,
+      "sweetUsedThisMonth": 0,
+      "roomNumber": "Office",
+      "studentId": "ADMIN001",
+      "hostelId": "h6",
+      "institutionName": "IET Indore — Boys Hostel",
+      "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "todayVoteCount": 0,
+      "lastLoginDate": "",
+      "lastBonusDate": ""
+    },
+    "student@hostel.com": {
+      "id": "u2",
+      "name": "Ayush Singh",
+      "email": "student@hostel.com",
+      "phone": "9876543210",
+      "role": "student",
+      "isVerified": true,
+      "credits": 74,
+      "monthlyCredits": 180,
+      "sweetUsedThisMonth": 1,
+      "roomNumber": "A-204",
+      "studentId": "CS2024042",
+      "hostelId": "h6",
+      "institutionName": "IET Indore — Boys Hostel",
+      "passwordHash": "9b8769a4a742959a2d0298c36fb70623f2dfacda8436237df08d8dfd5b37374c",
+      "todayVoteCount": 1,
+      "lastLoginDate": "",
+      "lastBonusDate": ""
+    }
+  },
+  "students": [
+    {
+      "id": "s1",
+      "name": "Ravi Patel",
+      "email": "ravi@college.edu",
+      "phone": "9300011111",
+      "roll": "EC2022031",
+      "room": "C-301",
+      "credits": 295,
+      "isVerified": false,
+      "hostelId": "h6"
+    },
+    {
+      "id": "s2",
+      "name": "Sneha Joshi",
+      "email": "sneha@college.edu",
+      "phone": "9400022222",
+      "roll": "CS2021099",
+      "room": "A-110",
+      "credits": 180,
+      "isVerified": true,
+      "hostelId": "h6"
+    },
+    {
+      "id": "s3",
+      "name": "Arjun Mehta",
+      "email": "arjun@college.edu",
+      "phone": "9500033333",
+      "roll": "ME2023015",
+      "room": "B-205",
+      "credits": 160,
+      "isVerified": true,
+      "hostelId": "h6"
+    },
+    {
+      "id": "s4",
+      "name": "Priya Yadav",
+      "email": "priya@college.edu",
+      "phone": "9700055555",
+      "roll": "IT2023090",
+      "room": "B-108",
+      "credits": 200,
+      "isVerified": true,
+      "hostelId": "h6"
+    }
+  ],
+  "menus": {
+    "breakfast": [
+      {
+        "id": "b1",
+        "emoji": "🥣",
+        "name": "Poha",
+        "desc": "Light flattened rice with spices",
+        "credits": 1,
+        "nutri": "7.8",
+        "votes": 54
+      },
+      {
+        "id": "b2",
+        "emoji": "🫓",
+        "name": "Upma",
+        "desc": "Semolina with peanuts & curry leaves",
+        "credits": 1,
+        "nutri": "7.5",
+        "votes": 38
+      },
+      {
+        "id": "b3",
+        "emoji": "🥞",
+        "name": "Idli-Sambar",
+        "desc": "Soft idli with hot sambar",
+        "credits": 1,
+        "nutri": "8.2",
+        "votes": 62
+      },
+      {
+        "id": "b4",
+        "emoji": "🍞",
+        "name": "Bread + Butter + Tea",
+        "desc": "2 slices bread, butter, cutting chai",
+        "credits": 0,
+        "nutri": "6.0",
+        "votes": 91,
+        "free": true
+      },
+      {
+        "id": "b5",
+        "emoji": "🥚",
+        "name": "Egg Omelette",
+        "desc": "2 egg omelette with onion & chili",
+        "credits": 2,
+        "nutri": "9.0",
+        "votes": 47
+      },
+      {
+        "id": "b6",
+        "emoji": "🧇",
+        "name": "Aloo Paratha",
+        "desc": "Stuffed aloo paratha with curd",
+        "credits": 2,
+        "nutri": "7.2",
+        "votes": 33
+      }
+    ],
+    "lunch": [
+      {
+        "id": "l1",
+        "emoji": "🍛",
+        "name": "Dal + Roti + Rice",
+        "desc": "Basic dal with roti and rice",
+        "credits": 0,
+        "nutri": "7.5",
+        "votes": 82,
+        "free": true
+      },
+      {
+        "id": "l2",
+        "emoji": "🥔",
+        "name": "Aloo Gobi",
+        "desc": "Dry potato and cauliflower sabzi",
+        "credits": 2,
+        "nutri": "7.8",
+        "votes": 54
+      },
+      {
+        "id": "l3",
+        "emoji": "🫘",
+        "name": "Rajma",
+        "desc": "Rajma in tomato masala",
+        "credits": 3,
+        "nutri": "8.7",
+        "votes": 29
+      },
+      {
+        "id": "l4",
+        "emoji": "🥬",
+        "name": "Palak Paneer",
+        "desc": "Spinach with soft paneer cubes",
+        "credits": 5,
+        "nutri": "9.1",
+        "votes": 68
+      },
+      {
+        "id": "l5",
+        "emoji": "🍗",
+        "name": "Chicken Curry",
+        "desc": "Desi chicken curry with masala",
+        "credits": 8,
+        "nutri": "9.4",
+        "votes": 31
+      }
+    ],
+    "snacks": [
+      {
+        "id": "sn1",
+        "emoji": "🫖",
+        "name": "Chai + Biscuit",
+        "desc": "Cutting chai with cream biscuit",
+        "credits": 0,
+        "nutri": "4.5",
+        "votes": 78,
+        "free": true
+      },
+      {
+        "id": "sn2",
+        "emoji": "🧆",
+        "name": "Samosa (2 pcs)",
+        "desc": "Crispy aloo samosa with chutney",
+        "credits": 1,
+        "nutri": "5.5",
+        "votes": 65
+      },
+      {
+        "id": "sn3",
+        "emoji": "🍜",
+        "name": "Maggi",
+        "desc": "Classic instant noodles with veggies",
+        "credits": 2,
+        "nutri": "5.8",
+        "votes": 55
+      },
+      {
+        "id": "sn4",
+        "emoji": "🥪",
+        "name": "Sandwich",
+        "desc": "Veg grilled sandwich with chutney",
+        "credits": 2,
+        "nutri": "7.0",
+        "votes": 39
+      }
+    ],
+    "dinner": [
+      {
+        "id": "d1",
+        "emoji": "🍛",
+        "name": "Dal + Roti + Rice",
+        "desc": "Basic dal with roti and rice",
+        "credits": 0,
+        "nutri": "7.5",
+        "votes": 74,
+        "free": true
+      },
+      {
+        "id": "d2",
+        "emoji": "🥔",
+        "name": "Aloo Matar",
+        "desc": "Potato and peas dry sabzi",
+        "credits": 2,
+        "nutri": "7.6",
+        "votes": 50
+      },
+      {
+        "id": "d3",
+        "emoji": "🥬",
+        "name": "Palak Paneer",
+        "desc": "Spinach with soft paneer cubes",
+        "credits": 5,
+        "nutri": "9.1",
+        "votes": 61
+      },
+      {
+        "id": "d4",
+        "emoji": "🍗",
+        "name": "Chicken Curry",
+        "desc": "Desi chicken curry with masala",
+        "credits": 8,
+        "nutri": "9.4",
+        "votes": 25
+      }
+    ]
+  },
+  "facilities": [
+    {
+      "id": "f1",
+      "icon": "🍲",
+      "title": "Mess / Food Quality",
+      "status": "warn",
+      "label": "Needs Improvement",
+      "desc": "AI detected oily food complaints up 18% this week."
+    },
+    {
+      "id": "f2",
+      "icon": "🧹",
+      "title": "Room Cleanliness",
+      "status": "bad",
+      "label": "Alert Sent",
+      "desc": "Management notified. Inspection scheduled Thursday."
+    },
+    {
+      "id": "f3",
+      "icon": "♨️",
+      "title": "Hot Water (Geyser)",
+      "status": "ok",
+      "label": "Working Fine",
+      "desc": "Available 6–10 AM and 6–10 PM in all blocks."
+    },
+    {
+      "id": "f4",
+      "icon": "🚰",
+      "title": "Drinking Water (RO)",
+      "status": "ok",
+      "label": "Purified & Safe",
+      "desc": "RO plant serviced 3 days ago. TDS: 48 ppm."
+    },
+    {
+      "id": "f5",
+      "icon": "🌙",
+      "title": "Induction Kitchen",
+      "status": "ok",
+      "label": "Open 24×7",
+      "desc": "Induction available round the clock."
+    },
+    {
+      "id": "f6",
+      "icon": "🏥",
+      "title": "Medical Facility",
+      "status": "warn",
+      "label": "Doctor on Call",
+      "desc": "Regular visits: Mon/Wed/Fri."
+    },
+    {
+      "id": "f7",
+      "icon": "🔒",
+      "title": "Security",
+      "status": "ok",
+      "label": "24/7 Guard",
+      "desc": "CCTV + security at all entry points."
+    },
+    {
+      "id": "f8",
+      "icon": "📶",
+      "title": "WiFi / Internet",
+      "status": "ok",
+      "label": "Fast Connection",
+      "desc": "1 Gbps fiber. All floors covered."
+    }
+  ],
+  "suggestions": [
+    {
+      "id": "sg1",
+      "slot": "lunch",
+      "emoji": "🥘",
+      "name": "Pav Bhaji",
+      "reason": "Classic Mumbai street food!",
+      "votes": 23,
+      "votedBy": []
+    },
+    {
+      "id": "sg2",
+      "slot": "dinner",
+      "emoji": "🍕",
+      "name": "Veg Pizza",
+      "reason": "Occasional treat.",
+      "votes": 18,
+      "votedBy": []
+    },
+    {
+      "id": "sg3",
+      "slot": "breakfast",
+      "emoji": "🧀",
+      "name": "Paneer Paratha",
+      "reason": "High protein breakfast!",
+      "votes": 31,
+      "votedBy": []
+    }
+  ],
+  "navConfig": [
+    {
+      "id": "home",
+      "label": "🏠 Home",
+      "visible": true,
+      "protected": true
+    },
+    {
+      "id": "food",
+      "label": "🍽 Vote",
+      "visible": true,
+      "protected": false
+    },
+    {
+      "id": "ratings",
+      "label": "⭐ Rate",
+      "visible": true,
+      "protected": false
+    },
+    {
+      "id": "credits",
+      "label": "💎 Credits",
+      "visible": true,
+      "protected": false
+    },
+    {
+      "id": "facilities",
+      "label": "🏗 Facility",
+      "visible": true,
+      "protected": false
+    },
+    {
+      "id": "sweet",
+      "label": "🍬 Sweet",
+      "visible": true,
+      "protected": false
+    },
+    {
+      "id": "feedback",
+      "label": "💬 Feedback",
+      "visible": true,
+      "protected": false
+    }
+  ],
+  "mealTimes": {
+    "breakfast": 450,
+    "lunch": 780,
+    "snacks": 1020,
+    "dinner": 1200
+  },
+  "creditHistory": [],
+  "todayVotes": {},
+  "maintenanceRequests": []
+}
