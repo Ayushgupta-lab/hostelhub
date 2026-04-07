@@ -358,6 +358,14 @@ app.post('/api/ratings', auth, async(req,res)=>{
   res.json({success:true});
 });
 
+app.post('/api/maintenance', auth, async(req,res)=>{
+  const user=await User.findOne({email:req.session.email});
+  if(!user.isVerified&&user.role!=='admin') return res.status(403).json({error:'Verification required'});
+  const{room,desc,type}=req.body;
+  if(!room||!desc) return res.status(400).json({error:'Room and description required'});
+  res.json({success:true,message:'Maintenance request received'});
+});
+
 app.get('*',(req,res)=>res.sendFile(path.join(__dirname,'../frontend/public/index.html')));
 
 // ── START ────────────────────────────────────────────────

@@ -533,12 +533,87 @@ function openSettings() {
     document.getElementById('psVotes').textContent = u.todayVoteCount || 0;
   } else { statsRow.style.display = 'none'; }
   // Fill profile info fields
-  const fields = { piName: u.name, piEmail: u.email, piPhone: u.phone || '—', piRoom: u.roomNumber || '—', piRoll: u.studentId || '—', piHostel: u.institutionName || '—' };
+  const fields = { piName: u.name, piEmail: u.email, piPhone: u.phone || '—', piRoom: u.roomNumber || '—', piId: u.studentId || '—', piInst: u.institutionName || '—' };
   Object.entries(fields).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
   document.getElementById('settingsModal').classList.add('open');
 }
 
 function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+
+function saveProfile() {
+  if (!currentUser) { toast('⚠️', 'Please login first!'); return; }
+  const name = document.getElementById('stgName').value.trim();
+  const phone = document.getElementById('stgPhone').value.trim();
+  const room = document.getElementById('stgRoom').value.trim();
+  if (name) currentUser.name = name;
+  if (phone) currentUser.phone = phone;
+  if (room) currentUser.roomNumber = room;
+  toast('✅', 'Profile updated! (Changes saved locally)');
+  openSettings();
+}
+
+function changePassword() {
+  if (!currentUser) { toast('⚠️', 'Please login first!'); return; }
+  const curPass = document.getElementById('stgCurPass').value;
+  const newPass = document.getElementById('stgNewPass').value;
+  if (!curPass || !newPass) { toast('⚠️', 'Please fill both password fields!'); return; }
+  if (newPass.length < 6) { toast('❌', 'New password must be at least 6 characters!'); return; }
+  toast('✅', 'Password changed successfully! (Demo mode)');
+  document.getElementById('stgCurPass').value = '';
+  document.getElementById('stgNewPass').value = '';
+}
+
+let selectedLang = 'english';
+function selectLang(lang) {
+  selectedLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  const btnId = 'lang' + lang.charAt(0).toUpperCase() + lang.slice(1);
+  document.getElementById(btnId)?.classList.add('active');
+}
+
+function saveLang() {
+  currentLang = selectedLang;
+  localStorage.setItem('hhLang', selectedLang);
+  toast('🌐', 'Language preference saved: ' + selectedLang);
+}
+
+let selectedChips = new Set();
+function toggleChip(el) {
+  const text = el.textContent.trim();
+  if (selectedChips.has(text)) {
+    selectedChips.delete(text);
+    el.classList.remove('active');
+    el.style.background = '';
+    el.style.color = '';
+    el.style.borderColor = '';
+  } else {
+    selectedChips.add(text);
+    el.classList.add('active');
+    el.style.background = 'linear-gradient(135deg,var(--accent),var(--accent2))';
+    el.style.color = '#fff';
+    el.style.borderColor = 'transparent';
+  }
+}
+
+function submitFeedback() {
+  if (!currentUser) { toast('⚠️', 'Please login first!'); return; }
+  const feedback = document.getElementById('feedbackText')?.value.trim();
+  if (!feedback && selectedChips.size === 0) {
+    toast('⚠️', 'Please write feedback or select sentiment chips!');
+    return;
+  }
+  const chipArray = Array.from(selectedChips);
+  toast('🤖', `Feedback received! ${chipArray.length} tags + message analyzed.`);
+  if (document.getElementById('feedbackText')) document.getElementById('feedbackText').value = '';
+  selectedChips.clear();
+  document.querySelectorAll('.btn-sm.btn-outline.active').forEach(el => {
+    el.classList.remove('active');
+    el.style.background = '';
+    el.style.color = '';
+    el.style.borderColor = '';
+  });
+}
+
 
 function toggleTheme() {
   const root = document.documentElement;
